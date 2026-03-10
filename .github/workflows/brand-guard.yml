@@ -13,6 +13,7 @@ on:
     paths:
       - "inject.js"
       - "registry.json"
+      - "persist.js"
 
 jobs:
   brand-guard:
