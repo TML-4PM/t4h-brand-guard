@@ -2,12 +2,11 @@ name: T4H Brand Guard
 
 on:
   schedule:
-    # 03:00 AEST daily (17:00 UTC)
     - cron: "0 17 * * *"
   workflow_dispatch:
     inputs:
       slug:
-        description: "Single repo slug to check (leave blank for all)"
+        description: "Single repo slug to check"
         required: false
   push:
     branches: [main]
@@ -39,52 +38,8 @@ jobs:
         if: always()
         env:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          if [ -f /tmp/brand-guard-results.json ]; then
-            RUN_NUMBER=${{ github.run_number }}
-            node -e "
-const fs = require('fs');
-const https = require('https');
-const results = JSON.parse(fs.readFileSync('/tmp/brand-guard-results.json'));
-const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const RUN = ${RUN_NUMBER};
-let pending = results.length;
-let done = 0;
-results.forEach(r => {
-  const injected = ['DONE','CREATED','ALREADY_DONE'].includes(r.status);
-  const body = JSON.stringify({
-    slug: r.slug,
-    repo: r.repo,
-    brand_group: r.group,
-    status: r.status,
-    framework: r.fw || null,
-    brand_injected_at: injected ? new Date().toISOString() : null,
-    last_checked_at: new Date().toISOString(),
-    run_number: RUN,
-    updated_at: new Date().toISOString()
-  });
-  const opts = {
-    hostname: 'lzfgigiyqpuuxslsygjt.supabase.co',
-    path: '/rest/v1/t4h_brand_state',
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + KEY,
-      'apikey': KEY,
-      'Content-Type': 'application/json',
-      'Prefer': 'resolution=merge-duplicates,return=minimal',
-      'Content-Length': Buffer.byteLength(body)
-    }
-  };
-  const req = https.request(opts, res => {
-    done++;
-    if (done === pending) console.log('Persisted ' + done + ' brand state rows to Supabase');
-  });
-  req.on('error', e => console.error('Supabase error:', e.message));
-  req.write(body);
-  req.end();
-});
-"
-          fi
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+        run: node persist.js
 
       - name: Upload Results
         if: always()
