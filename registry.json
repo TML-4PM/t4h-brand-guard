@@ -1,0 +1,266 @@
+[
+  {
+    "slug": "augmented-humanity-coach",
+    "repo": "augmented-humanity-coach",
+    "group": "G1",
+    "action": "keep"
+  },
+  {
+    "slug": "holoorg",
+    "repo": "holoorg",
+    "group": "G1",
+    "action": "keep"
+  },
+  {
+    "slug": "workfamilyai",
+    "repo": "neural-ennead-family",
+    "group": "G1",
+    "action": "keep"
+  },
+  {
+    "slug": "gcbat-vignettes",
+    "repo": "gcbat-vignettes-main",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "neuropak",
+    "repo": "neuropak",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "consentx",
+    "repo": "consent-x",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "lifegraph-plus",
+    "repo": "lifegraph-plus",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "gain-foundation",
+    "repo": "gain-foundation",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "myneuralsignal",
+    "repo": "myneuralsignal",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "drone-laser-delight",
+    "repo": "drone-laser-delight",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "laser-soil-whisperer",
+    "repo": "laser-soil-whisperer",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "ai-secure-identity",
+    "repo": "own-your-ai",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "enter-australia",
+    "repo": "enter-australia",
+    "group": "G3",
+    "action": "keep"
+  },
+  {
+    "slug": "all-chemist-com",
+    "repo": "all-chemists-com",
+    "group": "G3",
+    "action": "keep"
+  },
+  {
+    "slug": "xces",
+    "repo": "xses",
+    "group": "G3",
+    "action": "keep"
+  },
+  {
+    "slug": "own-your-ai",
+    "repo": "own-your-ai",
+    "group": "G3",
+    "action": "keep"
+  },
+  {
+    "slug": "come-in-spinner",
+    "repo": "come-in-spinner",
+    "group": "G3",
+    "action": "keep"
+  },
+  {
+    "slug": "global-tyres",
+    "repo": "global-tyres",
+    "group": "G3",
+    "action": "keep"
+  },
+  {
+    "slug": "global-tyre-locator",
+    "repo": "global-tyre-locator",
+    "group": "G3",
+    "action": "keep"
+  },
+  {
+    "slug": "global-parts",
+    "repo": "global-part-ownership",
+    "group": "G3",
+    "action": "keep"
+  },
+  {
+    "slug": "apex-predator-insurance",
+    "repo": "apex-predator-insurance",
+    "group": "G5",
+    "action": "keep"
+  },
+  {
+    "slug": "predator-alert",
+    "repo": "predator-alert-system",
+    "group": "G5",
+    "action": "keep"
+  },
+  {
+    "slug": "rhythm-method",
+    "repo": "rhythm-method",
+    "group": "G5",
+    "action": "keep"
+  },
+  {
+    "slug": "extreme-spotto",
+    "repo": "extreme-spotto",
+    "group": "G5",
+    "action": "keep"
+  },
+  {
+    "slug": "stubborn-ai-fails",
+    "repo": "Stubborn_AI_FAILS",
+    "group": "G5",
+    "action": "keep"
+  },
+  {
+    "slug": "free-aug-agents",
+    "repo": "free-augmentation-agents",
+    "group": "G5",
+    "action": "keep"
+  },
+  {
+    "slug": "ai-oopsies",
+    "repo": "Stubborn_AI_FAILS",
+    "group": "G5",
+    "action": "keep"
+  },
+  {
+    "slug": "troy-latter",
+    "repo": "troy-latter",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "making-you-a-star",
+    "repo": "making-you-a-star",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "current-scape",
+    "repo": "current-scape",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "property-decision-pack-web",
+    "repo": "property-decision-pack-web",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "jet-1-1",
+    "repo": "Jet-1.1",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "t4h-financial-model",
+    "repo": "t4h-financial-sharing-model",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "t4h-revenue-sharing-model-2025",
+    "repo": "t4h-financial-sharing-model",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "maat-money-console",
+    "repo": "maat-money-console",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "neural-market-intelligence",
+    "repo": "neural-market-intelligence",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "ai-sweet-spots-for-all",
+    "repo": "ai-sweet-spots-for-all",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "kids-visit-mode-portal",
+    "repo": "kids-visit-mode-portal",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "calmbound",
+    "repo": "calmbound",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "t4h-command-centre",
+    "repo": "mcp-command-centre",
+    "group": "G7",
+    "action": "keep"
+  },
+  {
+    "slug": "neural-ennead-dashboard",
+    "repo": "neural-ennead-dashboard",
+    "group": "G7",
+    "action": "keep"
+  },
+  {
+    "slug": "tech4humanity-books",
+    "repo": "tech4humanity-books",
+    "group": "G7",
+    "action": "keep"
+  },
+  {
+    "slug": "portfolio-site",
+    "repo": "portfolio-site",
+    "group": "G7",
+    "action": "keep"
+  },
+  {
+    "slug": "ai-era-thinking",
+    "repo": "ai-era-thinking",
+    "group": "G7",
+    "action": "keep"
+  }
+]
