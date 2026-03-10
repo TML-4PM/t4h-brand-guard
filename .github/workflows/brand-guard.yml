@@ -1,0 +1,45 @@
+name: T4H Brand Guard
+
+on:
+  schedule:
+    # 03:00 AEST daily (17:00 UTC)
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Single repo slug to check (leave blank for all)"
+        required: false
+  push:
+    branches: [main]
+    paths:
+      - "inject.js"
+      - "registry.json"
+
+jobs:
+  brand-guard:
+    name: Check & Inject Brand
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run Brand Guard
+        env:
+          GITHUB_PAT: ${{ secrets.BRAND_GUARD_PAT }}
+        run: node inject.js
+
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brand-guard-results-${{ github.run_id }}
+          path: /tmp/brand-guard-results.json
+          if-no-files-found: ignore
+          retention-days: 30
