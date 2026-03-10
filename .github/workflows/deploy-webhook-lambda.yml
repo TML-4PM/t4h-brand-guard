@@ -1,0 +1,73 @@
+name: Deploy Webhook Lambda (one-shot)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+
+      - name: Write Lambda code
+        run: |
+          cat > index.py << 'LAMBDAEOF'
+import json,os,urllib.request,urllib.error
+PAT=os.environ.get('GITHUB_PAT','')
+GUARD='t4h-brand-guard'
+ORG='TML-4PM'
+def lambda_handler(event,context):
+    try:
+        body=json.loads(event.get('body','{}') or '{}')
+        name=body.get('payload',{}).get('deployment',{}).get('name','')
+        print(json.dumps({'project':name,'event':body.get('type','')}))
+        if name:
+            d=json.dumps({'ref':'main'}).encode()
+            req=urllib.request.Request(
+                f'https://api.github.com/repos/{ORG}/{GUARD}/actions/workflows/brand-guard.yml/dispatches',
+                data=d,method='POST',
+                headers={'Authorization':f'Bearer {PAT}','Accept':'application/vnd.github+json',
+                         'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'})
+            urllib.request.urlopen(req,timeout=8)
+        return{'statusCode':200,'body':json.dumps({'ok':True,'project':name})}
+    except Exception as e:
+        print(str(e))
+        return{'statusCode':200,'body':'ok'}
+LAMBDAEOF
+          zip webhook.zip index.py
+
+      - name: Update Lambda code
+        run: |
+          aws lambda update-function-code \
+            --function-name t4h-vercel-brand-webhook \
+            --zip-file fileb://webhook.zip \
+            --region ap-southeast-2
+
+      - name: Update Lambda env
+        run: |
+          aws lambda update-function-configuration \
+            --function-name t4h-vercel-brand-webhook \
+            --environment "Variables={GITHUB_PAT=${{ secrets.BRAND_GUARD_PAT }}}" \
+            --handler index.lambda_handler \
+            --region ap-southeast-2
+
+      - name: Wait for update
+        run: sleep 8
+
+      - name: Smoke test via Lambda URL
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            https://7ha7ptleo7l6yzbj7rf4mfbpiu0imqjj.lambda-url.ap-southeast-2.on.aws/ \
+            -H "Content-Type: application/json" \
+            -d '{"body":"{}"}')
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+          echo "HTTP: $HTTP_CODE | Body: $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then exit 1; fi
+          echo "Webhook Lambda live ✅"
