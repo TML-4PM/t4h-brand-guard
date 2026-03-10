@@ -41,6 +41,37 @@ function upsert(row) {
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+
+// Promote to STRIPPED for critical sites that were previously ok but now failing
+const CRITICAL_SITES = ['t4h-command-centre','maat-money-console','troy-latter','holoorg','enter-australia','augmented-humanity-coach','workfamilyai'];
+async function getExistingStatus(slug) {{
+  return new Promise((res) => {{
+    const opts = {{
+      hostname: 'lzfgigiyqpuuxslsygjt.supabase.co',
+      path: `/rest/v1/t4h_brand_state?slug=eq.${{slug}}&select=status,brand_priority`,
+      headers: {{ 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }}
+    }};
+    const req = https.request(opts, r => {{
+      let d = ''; r.on('data', c => d += c);
+      r.on('end', () => {{
+        try {{ const rows = JSON.parse(d); res(rows[0] || null); }} catch {{ res(null); }}
+      }});
+    }});
+    req.on('error', () => res(null));
+    req.end();
+  }});
+}}
+
+async function promoteStripped(r) {{
+  const NOT_OK = ['no_file','patch_failed','error','exception','not_in_org'];
+  if (!NOT_OK.includes(r.status?.toLowerCase())) return r.status;
+  const prev = await getExistingStatus(r.slug);
+  const wasOk = prev && ['already_done','done','created'].includes(prev.status?.toLowerCase());
+  const isCritical = CRITICAL_SITES.includes(r.slug) || prev?.brand_priority === 'critical';
+  if (wasOk && isCritical) return 'STRIPPED';
+  return r.status;
+}}
+
 async function main() {
   let ok = 0, fail = 0;
   for (const r of results) {
@@ -49,7 +80,7 @@ async function main() {
       slug:              r.slug,
       repo:              r.repo,
       brand_group:       r.group,
-      status:            r.status,
+      status:            await promoteStripped(r) || r.status,
       framework:         r.fw || null,
       brand_injected_at: injected ? new Date().toISOString() : null,
       last_checked_at:   new Date().toISOString(),
