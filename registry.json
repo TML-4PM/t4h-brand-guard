@@ -21,7 +21,8 @@
     "slug": "gcbat-vignettes",
     "repo": "gcbat-vignettes-main",
     "group": "G2",
-    "action": "keep"
+    "action": "keep",
+    "create_if_missing": true
   },
   {
     "slug": "neuropak",
@@ -231,7 +232,8 @@
     "slug": "calmbound",
     "repo": "calmbound",
     "group": "G6",
-    "action": "keep"
+    "action": "keep",
+    "entry_override": "packages/kvm/portal/index.html"
   },
   {
     "slug": "t4h-command-centre",
