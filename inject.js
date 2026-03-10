@@ -65,7 +65,11 @@ async function getPkgDeps(repo) {
   try { const p = JSON.parse(f.content); return Object.keys({...p.dependencies,...p.devDependencies}); } catch { return []; }
 }
 
-async function detectAndGetFile(repo, deps) {
+async function detectAndGetFile(repo, deps, entryOverride) {
+  if (entryOverride) {
+    const f = await getFile(repo, entryOverride);
+    return { fw: 'static', file: f };
+  }
   const d = new Set(deps);
   const tryFiles = async (files) => { for (const f of files) { const r = await getFile(repo, f); if (r) return r; } return null; };
   if (d.has('next')) {
@@ -155,7 +159,7 @@ async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function processRepo(repo, group) {
   const brand = GROUP_BRAND[group] || GROUP_BRAND.G1;
   const deps = await getPkgDeps(repo); await sleep(100);
-  const { fw, file, create } = await detectAndGetFile(repo, deps); await sleep(100);
+  const { fw, file, create } = await detectAndGetFile(repo, deps, site.entry_override); await sleep(100);
 
   if (create) {
     const doc = buildNextjsDoc(group);
@@ -212,7 +216,7 @@ async function main() {
   console.log('\n--- SUMMARY ---');
   Object.entries(counts).forEach(([k,v])=>console.log(`  ${k}: ${v}`));
 
-  const failed = results.filter(r=>['ERROR','PATCH_FAILED','NO_FILE'].includes(r.status));
+  const failed = results.filter(r=>['ERROR','EXCEPTION'].includes(r.status));
   if (failed.length) {
     console.log('\nNeeds attention:');
     failed.forEach(r=>console.log(`  ${r.repo}: ${r.status} ${r.detail||''}`));
