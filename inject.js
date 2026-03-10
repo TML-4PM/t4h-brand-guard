@@ -1,7 +1,5 @@
 /**
- * T4H Brand Injection Engine v2
- * Self-contained — no npm install required (uses built-in https)
- * Called by GitHub Actions with GITHUB_PAT env var
+ * T4H Brand Injection Engine v2.1 — fixed entry_override scope
  */
 const https = require('https');
 const fs = require('fs');
@@ -31,7 +29,7 @@ function ghReq(method, path, body) {
         'Authorization': `Bearer ${PAT}`,
         'Accept': 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
-        'User-Agent': 'T4H-Brand-Guard/2.0',
+        'User-Agent': 'T4H-Brand-Guard/2.1',
         'Content-Type': 'application/json',
       }
     };
@@ -65,13 +63,16 @@ async function getPkgDeps(repo) {
   try { const p = JSON.parse(f.content); return Object.keys({...p.dependencies,...p.devDependencies}); } catch { return []; }
 }
 
+// entryOverride: optional specific path to check first (from registry.json entry_override field)
 async function detectAndGetFile(repo, deps, entryOverride) {
+  const tryFiles = async (files) => { for (const f of files) { const r = await getFile(repo, f); if (r) return r; } return null; };
+
   if (entryOverride) {
     const f = await getFile(repo, entryOverride);
     return { fw: 'static', file: f };
   }
+
   const d = new Set(deps);
-  const tryFiles = async (files) => { for (const f of files) { const r = await getFile(repo, f); if (r) return r; } return null; };
   if (d.has('next')) {
     const f = await tryFiles(['app/layout.tsx','app/layout.jsx','pages/_document.tsx','pages/_document.js']);
     return { fw: 'nextjs', file: f, create: !f ? 'pages/_document.tsx' : null };
@@ -142,7 +143,7 @@ ${headJsx(group)}
 
 function patchHtml(content, group, brand) {
   if (content.includes(MARKER)) return null;
-  let n = content.replace(/(< \/head>)/i, `${headHtml(group)}\n$1`).replace(/<\/head>/i, `${headHtml(group)}\n</head>`);
+  let n = content.replace(/<\/head>/i, `${headHtml(group)}\n</head>`);
   const ft = footerHtml(brand);
   if (ft) n = n.replace(/<\/body>/i, `${ft}\n</body>`);
   return n !== content ? n : null;
@@ -156,10 +157,12 @@ function patchJsx(content, group) {
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function processRepo(repo, group) {
+// site: full registry entry (has repo, group, entry_override, etc.)
+async function processRepo(site) {
+  const { repo, group, entry_override } = site;
   const brand = GROUP_BRAND[group] || GROUP_BRAND.G1;
   const deps = await getPkgDeps(repo); await sleep(100);
-  const { fw, file, create } = await detectAndGetFile(repo, deps, site.entry_override); await sleep(100);
+  const { fw, file, create } = await detectAndGetFile(repo, deps, entry_override); await sleep(100);
 
   if (create) {
     const doc = buildNextjsDoc(group);
@@ -181,7 +184,6 @@ async function processRepo(repo, group) {
 async function main() {
   if (!PAT) { console.error('GITHUB_PAT not set'); process.exit(1); }
 
-  // Get all org repos for cross-check
   let orgRepos = new Set();
   let page = 1;
   while (true) {
@@ -198,32 +200,38 @@ async function main() {
   console.log(`\nT4H Brand Guard — checking ${sites.length} repos\n`);
 
   for (let i = 0; i < sites.length; i++) {
-    const { slug, repo, group } = sites[i];
+    const site = sites[i];
+    const { slug, repo, group } = site;
     if (!orgRepos.has(repo)) {
       console.log(`[${i+1}/${sites.length}] ${repo} SKIP (not in org)`);
       results.push({ slug, repo, status: 'NOT_IN_ORG', group });
       continue;
     }
     process.stdout.write(`[${i+1}/${sites.length}] ${repo} (${group}) ... `);
-    const r = await processRepo(repo, group);
+    let r;
+    try {
+      r = await processRepo(site);
+    } catch(e) {
+      r = { status: 'EXCEPTION', detail: e.message };
+    }
     results.push({ slug, repo, group, ...r });
-    const icon = {DONE:'✅',CREATED:'✅',ALREADY_DONE:'⏭',NOT_IN_ORG:'🔍',NO_FILE:'❓',PATCH_FAILED:'⚠️',ERROR:'❌'}[r.status]||'?';
+    const icon = {DONE:'✅',CREATED:'✅',ALREADY_DONE:'⏭',NOT_IN_ORG:'🔍',NO_FILE:'❓',PATCH_FAILED:'⚠️',ERROR:'❌',EXCEPTION:'💥'}[r.status]||'?';
     console.log(`${icon} ${r.status} [${r.fw||'?'}] ${r.detail||''}`);
   }
 
-  // Write summary
   const counts = results.reduce((a,r)=>{a[r.status]=(a[r.status]||0)+1;return a},{});
   console.log('\n--- SUMMARY ---');
   Object.entries(counts).forEach(([k,v])=>console.log(`  ${k}: ${v}`));
 
-  const failed = results.filter(r=>['ERROR','EXCEPTION'].includes(r.status));
-  if (failed.length) {
-    console.log('\nNeeds attention:');
-    failed.forEach(r=>console.log(`  ${r.repo}: ${r.status} ${r.detail||''}`));
-    process.exitCode = 1;
+  const hardFailed = results.filter(r=>['ERROR','EXCEPTION'].includes(r.status));
+  if (hardFailed.length) {
+    console.log('\nHard failures (needs attention):');
+    hardFailed.forEach(r=>console.log(`  ${r.repo}: ${r.status} ${r.detail||''}`));
   }
 
   fs.writeFileSync('/tmp/brand-guard-results.json', JSON.stringify(results, null, 2));
+
+  if (hardFailed.length) process.exitCode = 1;
 }
 
 main().catch(e=>{ console.error(e); process.exit(1); });
