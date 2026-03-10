@@ -262,5 +262,29 @@
     "repo": "ai-era-thinking",
     "group": "G7",
     "action": "keep"
+  },
+  {
+    "slug": "agentforce-demo",
+    "repo": "agentforce-demo",
+    "group": "G6",
+    "action": "keep"
+  },
+  {
+    "slug": "aiolympics",
+    "repo": "aiolympics",
+    "group": "G2",
+    "action": "keep"
+  },
+  {
+    "slug": "master-dashboard",
+    "repo": "master-dashboard",
+    "group": "G7",
+    "action": "keep"
+  },
+  {
+    "slug": "living-cells-grid",
+    "repo": "living-cells-grid",
+    "group": "G7",
+    "action": "keep"
   }
 ]
